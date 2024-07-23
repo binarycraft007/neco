@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <unistd.h>
-#include "../neco.h"
+#include "neco.h"
 
 void client(int argc, void *argv[]) {
     int conn = *(int*)argv[0];

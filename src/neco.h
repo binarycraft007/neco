@@ -225,8 +225,8 @@ int neco_cancel_dl(int64_t id, int64_t deadline);
 int neco_setcanceltype(int type, int *oldtype);
 int neco_setcancelstate(int state, int *oldstate);
 
-#define neco_cleanup_push(routine, arg) {__neco_c0(&(char[32]){0},routine,arg);
-#define neco_cleanup_pop(execute)        __neco_c1(execute);}
+#define neco_cleanup_push(routine, arg) do {char _handler[32] = {0}; __neco_c0(&_handler, routine, arg);
+#define neco_cleanup_pop(execute)        __neco_c1(execute);} while (0)
 
 /// @}
 
