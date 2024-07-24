@@ -18,15 +18,20 @@ pub fn main() !void {
 }
 
 fn necoMain() callconv(.C) c_int {
-    const ln = c.neco_serve("tcp", "127.0.0.1:2080");
-    if (ln <= 0) {
-        std.debug.print("neco_serve\n", .{});
-        std.posix.exit(1);
-    }
-    defer std.posix.close(ln);
+    var listener = std.net.Address.parseIp("127.0.0.1", 2080) catch {
+        return 0;
+    };
+    var server = listener.listen(.{
+        .reuse_port = true,
+        .reuse_address = true,
+        .force_nonblocking = true,
+    }) catch {
+        return 0;
+    };
+    defer server.deinit();
     std.debug.print("listening at 127.0.0.1:2080\n", .{});
     while (true) {
-        const conn = c.neco_accept(ln, 0, 0);
+        const conn = c.neco_accept(server.stream.handle, 0, 0);
         if (conn > 0) {
             _ = c.neco_start(client, 1, &conn);
         }
@@ -35,7 +40,7 @@ fn necoMain() callconv(.C) c_int {
 }
 
 fn client(argc: c_int, argv: [*c]?*anyopaque) callconv(.C) void {
-    _ = argc;
+    std.debug.assert(argc == 1);
     const conn: *c_int = @ptrCast(@alignCast(argv[0]));
     std.debug.print("client connected\n", .{});
     defer std.posix.close(conn.*);
