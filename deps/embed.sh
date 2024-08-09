@@ -4,7 +4,7 @@
 # Each source file must have a // BEGIN file.c and // END file.c
 
 SOURCE_FILE=../neco.c
-EMBEDDED_FILES=("sco.c" "stack.c" "aat.h" "worker.c")
+EMBEDDED_FILES=("sco.c" "stack.c" "aat.h" "worker.c" "wepoll.c")
 
 set -e
 cd $(dirname "${BASH_SOURCE[0]}")

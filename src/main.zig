@@ -24,8 +24,6 @@ pub fn necoMain() !void {
 }
 
 fn client(conn: net.Server.Connection) !void {
-    std.debug.print("client connected\n", .{});
-    defer std.debug.print("client disconnected\n", .{});
     var header_buffer: [1024]u8 = undefined;
     var server = HttpServer.init(conn, &header_buffer);
     //defer conn.stream.close();
