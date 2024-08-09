@@ -3,7 +3,7 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-
+    const t = target.result;
     const lib = b.addStaticLibrary(.{
         .name = "neco",
         .target = target,
@@ -14,6 +14,13 @@ pub fn build(b: *std.Build) void {
         .file = b.path("src/neco.c"),
         .flags = &.{},
     });
+    if (t.os.tag == .windows) {
+        lib.linkLibrary(b.dependency("winpthreads", .{
+            .target = target,
+            .optimize = optimize,
+        }).artifact("winpthreads"));
+        lib.linkSystemLibrary("ws2_32");
+    }
     lib.defineCMacro("LLCO_NOUNWIND", "");
     lib.addIncludePath(b.path("src"));
     lib.installHeader(b.path("src/neco.h"), "neco.h");

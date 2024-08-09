@@ -19,6 +19,10 @@
 #include <sys/socket.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 // basic operations
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +110,7 @@ int neco_gen_close(neco_gen *gen);
 /// to a variable or set of variables and helps to avoid data inconsistencies
 /// due to race conditions.
 /// @{
-typedef struct { _Alignas(16) char _[48]; } neco_mutex;
+typedef struct { int64_t _0; intptr_t _1[5]; } neco_mutex;
 
 #define NECO_MUTEX_INITIALIZER { 0 }
 
@@ -128,8 +132,7 @@ int neco_mutex_tryrdlock(neco_mutex *mutex);
 /// At the same time, neco_waitgroup_wait() can be used to block until all
 /// coroutines are completed.
 /// @{
-typedef struct { _Alignas(16) char _[48]; } neco_waitgroup;
-
+typedef struct { int64_t _0; intptr_t _1[5]; } neco_waitgroup;
 #define NECO_WAITGROUP_INITIALIZER { 0 }
 
 int neco_waitgroup_init(neco_waitgroup *waitgroup);
@@ -143,7 +146,7 @@ int neco_waitgroup_wait_dl(neco_waitgroup *waitgroup, int64_t deadline);
 /// A condition variable is a synchronization mechanism that allows coroutines
 /// to suspend execution until some condition is true. 
 /// @{
-typedef struct { _Alignas(16) char _[48]; } neco_cond;
+typedef struct { int64_t _0; intptr_t _1[5]; } neco_cond;
 #define NECO_COND_INITIALIZER { 0 }
 
 int neco_cond_init(neco_cond *cond);
@@ -225,8 +228,9 @@ int neco_cancel_dl(int64_t id, int64_t deadline);
 int neco_setcanceltype(int type, int *oldtype);
 int neco_setcancelstate(int state, int *oldstate);
 
-#define neco_cleanup_push(routine, arg) do {char _handler[32] = {0}; __neco_c0(&_handler, routine, arg);
-#define neco_cleanup_pop(execute)        __neco_c1(execute);} while (0)
+#define neco_cleanup_push(routine, arg) {char __neco_handler[32]={0};\
+    __neco_c0(__neco_handler,routine,arg);
+#define neco_cleanup_pop(execute) __neco_c1(execute);}
 
 /// @}
 
@@ -260,7 +264,6 @@ int neco_signal_wait_dl(int64_t deadline);
 int neco_signal_unwatch(int signo);
 
 /// @}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // background worker
@@ -448,6 +451,10 @@ void __neco_exit_prog(int);
 
 #ifndef EAI_SYSTEM
 #define EAI_SYSTEM 11
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif // NECO_H

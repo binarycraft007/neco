@@ -3,7 +3,9 @@ const posix = std.posix;
 const builtin = @import("builtin");
 const native_os = builtin.os.tag;
 const root = @import("root");
-pub const c = @cImport(@cInclude("neco.h"));
+pub const c = @cImport({
+    @cInclude("neco.h");
+});
 const testing = std.testing;
 
 pub fn startMain() void {
@@ -79,7 +81,10 @@ pub fn accept(
 ) AcceptError!posix.socket_t {
     const rc = c.neco_accept(sock, @ptrCast(addr), @ptrCast(addr_size));
     switch (posix.errno(rc)) {
-        .SUCCESS => return @intCast(rc),
+        .SUCCESS => return switch (native_os) {
+            .windows => @ptrFromInt(@as(usize, @intCast(c._get_osfhandle(rc)))),
+            else => rc,
+        },
         .INTR => unreachable,
         .AGAIN => unreachable,
         .BADF => unreachable, // always a race condition
@@ -119,8 +124,8 @@ pub fn read(fd: posix.fd_t, buf: []u8) ReadError!usize {
     // Prevents EINVAL.
     const max_count = switch (native_os) {
         .linux => 0x7ffff000,
-        .macos, .ios, .watchos, .tvos, .visionos => posix.maxInt(i32),
-        else => posix.maxInt(isize),
+        .macos, .ios, .watchos, .tvos, .visionos => std.math.maxInt(i32),
+        else => std.math.maxInt(isize),
     };
     const rc = c.neco_read(fd, buf.ptr, @min(buf.len, max_count));
     switch (posix.errno(rc)) {
